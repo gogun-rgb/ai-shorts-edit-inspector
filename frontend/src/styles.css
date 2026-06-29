@@ -176,6 +176,30 @@ h2 {
   gap: 12px;
 }
 
+.filters-panel {
+  margin-bottom: 16px;
+  border: 1px solid #ebe6dc;
+  border-radius: 8px;
+  background: #faf9f5;
+  padding: 14px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.filter-count {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  color: #38413f;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -343,6 +367,108 @@ h2 {
   padding: 12px 16px 16px;
 }
 
+.timeline-panel {
+  margin-bottom: 20px;
+}
+
+.timeline-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+.timeline-scale {
+  display: flex;
+  justify-content: space-between;
+  color: #626b68;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.timeline-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.timeline-track {
+  position: relative;
+  min-width: 680px;
+  border: 1px solid #d8d4ca;
+  border-radius: 8px;
+  background: #faf9f5;
+}
+
+.timeline-track::before {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  left: 12px;
+  height: 2px;
+  background: #d8d4ca;
+  content: "";
+}
+
+.timeline-tick {
+  position: absolute;
+  top: 2px;
+  color: #626b68;
+  font-size: 0.72rem;
+  transform: translateX(-50%);
+}
+
+.timeline-tick::after {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 1px;
+  height: calc(100% + 42px);
+  background: #e7e1d6;
+  content: "";
+}
+
+.timeline-playhead {
+  position: absolute;
+  top: 12px;
+  bottom: 8px;
+  z-index: 2;
+  width: 2px;
+  background: #18201f;
+  transform: translateX(-1px);
+}
+
+.timeline-segment {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  min-width: 34px;
+  height: 28px;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 2px 6px;
+  color: #18201f;
+  cursor: pointer;
+  text-align: left;
+}
+
+.timeline-segment span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.timeline-segment strong {
+  overflow: hidden;
+  font-size: 0.74rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-segment.selected {
+  outline: 3px solid #18201f;
+  outline-offset: 2px;
+}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -499,7 +625,8 @@ h2 {
   .workspace-grid,
   .split-grid,
   .summary-grid,
-  .settings-grid {
+  .settings-grid,
+  .filters-grid {
     grid-template-columns: 1fr;
   }
 
@@ -513,4 +640,3 @@ h2 {
     min-width: 760px;
   }
 }
-
