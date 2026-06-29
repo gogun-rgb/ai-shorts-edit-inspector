@@ -191,6 +191,10 @@ h2 {
   align-items: end;
 }
 
+.filters-grid > * {
+  min-width: 0;
+}
+
 .filter-count {
   min-height: 40px;
   display: flex;
@@ -367,8 +371,13 @@ h2 {
   padding: 12px 16px 16px;
 }
 
+.findings-controls-panel,
 .timeline-panel {
   margin-bottom: 20px;
+}
+
+.findings-controls-panel .filters-panel {
+  margin-bottom: 0;
 }
 
 .timeline-wrap {
@@ -638,5 +647,13 @@ h2 {
 
   .findings-table {
     min-width: 760px;
+  }
+
+  .filter-count {
+    white-space: normal;
+  }
+
+  .filters-grid .secondary-button {
+    width: 100%;
   }
 }

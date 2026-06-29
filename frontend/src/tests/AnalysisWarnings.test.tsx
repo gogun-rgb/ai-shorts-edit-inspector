@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AnalysisPage } from "../pages/AnalysisPage";
 import type { AnalysisResult } from "../types/analysis";
 
+const transcriptWarning = "Whisper transcript 생성에 실패했습니다.";
+
 const result: AnalysisResult = {
   analysisId: "123",
   status: "PARTIAL_SUCCESS",
@@ -38,10 +40,10 @@ const result: AnalysisResult = {
     languageProbability: 0.9,
     duration: 10,
     segments: [],
-    error: "Whisper transcript 생성에 실패했습니다."
+    error: transcriptWarning
   },
   scenes: [{ index: 0, start: 0, end: 10, duration: 10 }],
-  warnings: ["Whisper transcript 생성에 실패했습니다."],
+  warnings: [transcriptWarning],
   error: null
 };
 
@@ -65,7 +67,6 @@ describe("AnalysisPage warnings", () => {
     );
 
     await waitFor(() => expect(screen.getByText("부분 성공")).toBeInTheDocument());
-    expect(screen.getAllByText("Whisper transcript 생성에 실패했습니다.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(transcriptWarning).length).toBeGreaterThan(0);
   });
 });
-
