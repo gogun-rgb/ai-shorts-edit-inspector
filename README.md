@@ -29,6 +29,9 @@ The app does not claim to understand editing quality perfectly. It reports rule-
 - Optional SRT/VTT upload and transcript-to-subtitle gap comparison
 - Readiness score and grade
 - HTML5 video player with finding-row seek
+- Severity and finding type filters with reset and visible result counts
+- Interactive findings timeline with click-to-seek behavior
+- Current playback position marker on the findings timeline
 - JSON and CSV exports
 - Delete API for temporary analysis files
 - Backend and frontend tests
@@ -68,8 +71,9 @@ backend/app/models           Pydantic response models
 backend/app/services         FFmpeg, metadata, transcript, scene, subtitle, report logic
 backend/app/utils            path and timestamp helpers
 frontend/src/api             typed API client
-frontend/src/components      uploader, player, findings, transcript, status UI
+frontend/src/components      uploader, player, filters, timeline, findings, transcript, status UI
 frontend/src/pages           home and analysis screens
+frontend/src/utils           labels, finding filters, timeline calculations, time formatting
 storage/analyses             local temporary analysis data
 scripts                      dev and system check helpers
 ```
@@ -100,6 +104,14 @@ Scene detection uses PySceneDetect `ContentDetector`. Scenes of 6s or longer bec
 Rapid cuts are detected when at least 4 scenes shorter than 0.45s appear within a 3s window. A single short scene is only a low-priority candidate.
 
 Subtitle gaps are detected only when a user uploads SRT/VTT. Transcript segments are compared with subtitle cues using a 0.3s tolerance. Without a subtitle file, the app only shows transcript segments as caption-production candidates.
+
+## Result Filters and Timeline
+
+The result screen can filter findings by severity and by finding type. Filters affect only the on-screen table and timeline; JSON and CSV exports continue to use the full original analysis result.
+
+The interactive timeline maps each finding to the uploaded video's duration. A finding segment's horizontal position is based on `start / videoDuration`, and its width is based on `duration / videoDuration`. Very short findings get a minimum visible width so they remain clickable, but the underlying timestamps are not changed.
+
+Clicking a timeline segment or a table row seeks the HTML5 video player to the finding start time. The selected finding is reflected in both the table and the timeline, and the playhead shows the current playback position. These timeline markers are rule-based diagnostics and do not predict views, retention, or creative quality.
 
 ## Readiness Score
 
@@ -197,6 +209,8 @@ npm.cmd test
 npm.cmd run build
 ```
 
+The frontend tests cover upload validation, partial-success warnings, findings table selection, severity/type filters, combined filter behavior, filter reset, timeline calculations, timeline click-to-seek behavior, selected timeline items, empty states, and playback position rendering.
+
 System check:
 
 ```powershell
@@ -258,17 +272,28 @@ Upload fields:
 - CPU transcript generation can be slow.
 - PySceneDetect can miss subtle cuts or split intentional motion.
 - Burned-in captions are not OCR-scanned.
+- Readiness score and timeline findings are rule-based review aids, not performance predictions.
 - Browser autoplay may be blocked after seeking.
 - CI should not depend on Whisper model downloads.
 
+## v0.1.0 Changes
+
+- Added severity-based filtering for findings.
+- Added finding type filtering based on returned backend finding types.
+- Added combined filters, result counts, and filter reset.
+- Added an interactive findings timeline below the video player.
+- Added current playback position visualization.
+- Linked table and timeline selection state.
+- Added frontend tests for filters and timeline interactions.
+- Updated the GitHub workflow around Issues, PRs, CI, and Release preparation.
+
 ## Future Improvements
 
-- Filter findings by severity/type
 - Markdown report export
 - Per-video history database
 - Caption OCR as an optional advanced mode
 - User-tunable rule presets
-- Timeline visualization
+- Persistent GitHub Project automation once the GitHub CLI token has project scope
 
 ## Screenshots
 
@@ -280,4 +305,3 @@ Upload fields:
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
