@@ -61,7 +61,7 @@ def get_settings() -> Settings:
 
     return Settings(
         app_env=os.getenv("APP_ENV", "development"),
-        app_version=os.getenv("APP_VERSION", "0.1.0"),
+        app_version=os.getenv("APP_VERSION", "0.1.1"),
         frontend_origin=os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"),
         storage_dir=storage_dir.resolve(),
         max_upload_mb=_env_int("MAX_UPLOAD_MB", 500),
@@ -80,4 +80,3 @@ def get_settings() -> Settings:
         subtitle_tolerance_seconds=_env_float("SUBTITLE_TOLERANCE_SECONDS", 0.3),
         analysis_retention_hours=_env_int("ANALYSIS_RETENTION_HOURS", 24),
     )
-
