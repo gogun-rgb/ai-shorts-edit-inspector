@@ -22,3 +22,19 @@ export const findingTypeLabel: Record<string, string> = {
   TRANSCRIPTION_ERROR: "Transcript 오류"
 };
 
+export const severityOrder = ["HIGH", "MEDIUM", "LOW", "INFO"] as const;
+
+export const findingTypeOrder = [
+  "START_SILENCE",
+  "END_SILENCE",
+  "SILENCE",
+  "LONG_SCENE",
+  "VERY_LONG_SCENE",
+  "SHORT_SCENE",
+  "RAPID_CUTS",
+  "SUBTITLE_GAP",
+  "ASPECT_RATIO",
+  "VIDEO_DURATION",
+  "MISSING_AUDIO",
+  "TRANSCRIPTION_ERROR"
+] as const;

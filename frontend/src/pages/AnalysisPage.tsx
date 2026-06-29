@@ -1,16 +1,19 @@
 import { Download, RotateCcw, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { deleteAnalysis, exportUrl, fetchAnalysis } from "../api/client";
 import { AnalysisProgress } from "../components/AnalysisProgress";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
+import { FindingsFilters } from "../components/FindingsFilters";
 import { FindingsTable } from "../components/FindingsTable";
 import { SummaryCards } from "../components/SummaryCards";
 import { TranscriptPanel } from "../components/TranscriptPanel";
 import { VideoPlayer } from "../components/VideoPlayer";
 import type { VideoPlayerHandle } from "../components/VideoPlayer";
 import type { AnalysisResult, Finding, TranscriptSegment } from "../types/analysis";
+import { filterFindings } from "../utils/findings";
+import type { FindingTypeFilter, SeverityFilter } from "../utils/findings";
 import { formatTime } from "../utils/time";
 
 const doneStatuses = new Set(["COMPLETED", "PARTIAL_SUCCESS", "FAILED"]);
@@ -22,6 +25,8 @@ export function AnalysisPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("ALL");
+  const [typeFilter, setTypeFilter] = useState<FindingTypeFilter>("ALL");
 
   useEffect(() => {
     const id = analysisId;
@@ -50,6 +55,11 @@ export function AnalysisPage() {
       window.clearInterval(timer);
     };
   }, [analysisId]);
+
+  const filteredFindings = useMemo(
+    () => (result ? filterFindings(result.findings, severityFilter, typeFilter) : []),
+    [result, severityFilter, typeFilter]
+  );
 
   if (!analysisId) return <ErrorState message="분석 ID가 없습니다." />;
   if (error) return <ErrorState message={error} />;
@@ -117,7 +127,19 @@ export function AnalysisPage() {
               <h2>편집 필요 구간</h2>
               <p>행을 선택하면 영상이 해당 시점으로 이동합니다.</p>
             </div>
-            <FindingsTable findings={result.findings} selectedId={selectedId} onSeek={seekFinding} />
+            <FindingsFilters
+              findings={result.findings}
+              severityFilter={severityFilter}
+              typeFilter={typeFilter}
+              filteredCount={filteredFindings.length}
+              onSeverityChange={setSeverityFilter}
+              onTypeChange={setTypeFilter}
+              onReset={() => {
+                setSeverityFilter("ALL");
+                setTypeFilter("ALL");
+              }}
+            />
+            <FindingsTable findings={filteredFindings} selectedId={selectedId} onSeek={seekFinding} />
           </section>
           <section className="split-grid">
             <div className="panel">

@@ -176,6 +176,30 @@ h2 {
   gap: 12px;
 }
 
+.filters-panel {
+  margin-bottom: 16px;
+  border: 1px solid #ebe6dc;
+  border-radius: 8px;
+  background: #faf9f5;
+  padding: 14px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(180px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.filter-count {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  color: #38413f;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -499,7 +523,8 @@ h2 {
   .workspace-grid,
   .split-grid,
   .summary-grid,
-  .settings-grid {
+  .settings-grid,
+  .filters-grid {
     grid-template-columns: 1fr;
   }
 
@@ -513,4 +538,3 @@ h2 {
     min-width: 760px;
   }
 }
-
