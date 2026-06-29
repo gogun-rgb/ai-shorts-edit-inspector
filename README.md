@@ -107,11 +107,11 @@ Subtitle gaps are detected only when a user uploads SRT/VTT. Transcript segments
 
 ## Result Filters and Timeline
 
-The result screen can filter findings by severity and by finding type. Filters affect only the on-screen table and timeline; JSON and CSV exports continue to use the full original analysis result.
+The result screen can filter findings by severity and by finding type. The shared filter controls sit above both the timeline and the findings table, and the same filtered set is applied to both views. JSON and CSV exports continue to use the full original analysis result.
 
 The interactive timeline maps each finding to the uploaded video's duration. A finding segment's horizontal position is based on `start / videoDuration`, and its width is based on `duration / videoDuration`. Very short findings get a minimum visible width so they remain clickable, but the underlying timestamps are not changed.
 
-Clicking a timeline segment or a table row seeks the HTML5 video player to the finding start time. The selected finding is reflected in both the table and the timeline, and the playhead shows the current playback position. These timeline markers are rule-based diagnostics and do not predict views, retention, or creative quality.
+Clicking a timeline segment or a table row seeks the HTML5 video player to the finding start time. The selected finding is reflected in both the table and the timeline, and the playhead shows the current playback position. If a filter change hides the selected finding, the selection is cleared instead of leaving a stale highlighted state. These timeline markers are rule-based diagnostics and do not predict views, retention, or creative quality.
 
 ## Readiness Score
 
@@ -199,6 +199,8 @@ cd ai-shorts-edit-inspector\backend
 .\.venv\Scripts\python -m pytest
 ```
 
+Backend tests include a real MP4 API integration test. The test generates a short temporary video with FFmpeg, uploads it through `POST /api/analyses`, lets ffprobe, FFmpeg silence detection, PySceneDetect, report generation, exports, video delivery, and deletion run through the API, and replaces only Whisper transcription with a fixed test transcript so CI does not download a model.
+
 Frontend:
 
 ```powershell
@@ -209,7 +211,7 @@ npm.cmd test
 npm.cmd run build
 ```
 
-The frontend tests cover upload validation, partial-success warnings, findings table selection, severity/type filters, combined filter behavior, filter reset, timeline calculations, timeline click-to-seek behavior, selected timeline items, empty states, and playback position rendering.
+The frontend tests cover upload validation, partial-success warnings, findings table selection, severity/type filters, combined filter behavior, filter reset, the filter/timeline/table render order, clearing hidden selections, preserving visible selections, timeline calculations, timeline click-to-seek behavior, selected timeline items, empty states, and playback position rendering.
 
 System check:
 
@@ -287,6 +289,22 @@ Upload fields:
 - Added frontend tests for filters and timeline interactions.
 - Updated the GitHub workflow around Issues, PRs, CI, and Release preparation.
 
+## v0.1.1 Changes
+
+- Moved shared findings filters above the timeline and findings table.
+- Clear the selected finding when it is excluded by active filters.
+- Added a real MP4 API integration test using FFmpeg-generated media.
+- Improved project management documentation.
+- Replaced screenshot placeholders with an accurate demo media note.
+
+## Project Management
+
+No GitHub Project link is documented yet because the current GitHub CLI token cannot read or create Projects. `gh project list --owner gogun-rgb` fails with a missing `read:project` scope. Refresh the token before adding a verified Project link:
+
+```powershell
+gh auth refresh -h github.com -s project,read:project
+```
+
 ## Future Improvements
 
 - Markdown report export
@@ -295,12 +313,16 @@ Upload fields:
 - User-tunable rule presets
 - Persistent GitHub Project automation once the GitHub CLI token has project scope
 
-## Screenshots
+## Demo Media
 
-- Upload screen screenshot
-- Analysis progress screenshot
-- Findings timeline screenshot
-- Transcript panel screenshot
+Screenshots and a short interaction GIF will be added separately.
+
+Planned media:
+
+- Upload screen
+- Analysis progress
+- Findings timeline and filters
+- Transcript and scene panels
 
 ## License
 
