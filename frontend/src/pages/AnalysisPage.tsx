@@ -19,10 +19,23 @@ import { formatTime } from "../utils/time";
 
 const doneStatuses = new Set(["COMPLETED", "PARTIAL_SUCCESS", "FAILED"]);
 
+function hasVisibleFinding(
+  findings: Finding[],
+  severityFilter: SeverityFilter,
+  typeFilter: FindingTypeFilter,
+  selectedId: string
+) {
+  return filterFindings(findings, severityFilter, typeFilter).some((finding) => finding.id === selectedId);
+}
+
 export function AnalysisPage() {
   const { analysisId } = useParams<{ analysisId: string }>();
   const navigate = useNavigate();
   const playerRef = useRef<VideoPlayerHandle | null>(null);
+  const filtersRef = useRef<{ severityFilter: SeverityFilter; typeFilter: FindingTypeFilter }>({
+    severityFilter: "ALL",
+    typeFilter: "ALL"
+  });
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -43,7 +56,11 @@ export function AnalysisPage() {
         setResult(next);
         setSelectedId((current) => {
           if (!current) return current;
-          return next.findings.some((finding) => finding.id === current) ? current : null;
+          const {
+            severityFilter: activeSeverityFilter,
+            typeFilter: activeTypeFilter
+          } = filtersRef.current;
+          return hasVisibleFinding(next.findings, activeSeverityFilter, activeTypeFilter, current) ? current : null;
         });
         setError(null);
         if (doneStatuses.has(next.status)) {
@@ -84,22 +101,24 @@ export function AnalysisPage() {
   function clearSelectionIfHidden(nextSeverityFilter: SeverityFilter, nextTypeFilter: FindingTypeFilter) {
     setSelectedId((current) => {
       if (!current) return current;
-      const nextFindings = filterFindings(activeResult.findings, nextSeverityFilter, nextTypeFilter);
-      return nextFindings.some((finding) => finding.id === current) ? current : null;
+      return hasVisibleFinding(activeResult.findings, nextSeverityFilter, nextTypeFilter, current) ? current : null;
     });
   }
 
   function handleSeverityChange(value: SeverityFilter) {
+    filtersRef.current = { severityFilter: value, typeFilter };
     setSeverityFilter(value);
     clearSelectionIfHidden(value, typeFilter);
   }
 
   function handleTypeChange(value: FindingTypeFilter) {
+    filtersRef.current = { severityFilter, typeFilter: value };
     setTypeFilter(value);
     clearSelectionIfHidden(severityFilter, value);
   }
 
   function handleResetFilters() {
+    filtersRef.current = { severityFilter: "ALL", typeFilter: "ALL" };
     setSeverityFilter("ALL");
     setTypeFilter("ALL");
     clearSelectionIfHidden("ALL", "ALL");
