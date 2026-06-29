@@ -1,0 +1,39 @@
+# Environment
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Local media and generated analysis data
+storage/analyses/
+*.mp4
+*.m4a
+*.wav
+*.aac
+*.srt
+*.vtt
+*.transcript.json
+result.json
+*.log
+
+# Whisper/model caches
+.cache/
+
+# OS temp files
+.DS_Store
+Thumbs.db
+*.tmp
+
+!storage/.gitkeep
+!samples/README.md
