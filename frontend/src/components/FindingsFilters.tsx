@@ -38,7 +38,7 @@ export function FindingsFilters({
   const hasActiveFilter = severityFilter !== "ALL" || typeFilter !== "ALL";
 
   return (
-    <div className="filters-panel" aria-label="편집 필요 구간 필터">
+    <div className="filters-panel" aria-label="결과 필터">
       <div className="filters-grid">
         <label className="field">
           심각도

@@ -41,6 +41,10 @@ export function AnalysisPage() {
         const next = await fetchAnalysis(idToFetch);
         if (!alive) return;
         setResult(next);
+        setSelectedId((current) => {
+          if (!current) return current;
+          return next.findings.some((finding) => finding.id === current) ? current : null;
+        });
         setError(null);
         if (doneStatuses.has(next.status)) {
           window.clearInterval(timer);
@@ -68,12 +72,37 @@ export function AnalysisPage() {
   if (error) return <ErrorState message={error} />;
   if (!result) return <EmptyState />;
 
+  const activeResult = result;
   const isDone = doneStatuses.has(result.status);
   const timelineDuration = playerDuration || result.metadata?.duration || 0;
 
   function seekFinding(finding: Finding) {
     setSelectedId(finding.id);
     playerRef.current?.seekTo(finding.start);
+  }
+
+  function clearSelectionIfHidden(nextSeverityFilter: SeverityFilter, nextTypeFilter: FindingTypeFilter) {
+    setSelectedId((current) => {
+      if (!current) return current;
+      const nextFindings = filterFindings(activeResult.findings, nextSeverityFilter, nextTypeFilter);
+      return nextFindings.some((finding) => finding.id === current) ? current : null;
+    });
+  }
+
+  function handleSeverityChange(value: SeverityFilter) {
+    setSeverityFilter(value);
+    clearSelectionIfHidden(value, typeFilter);
+  }
+
+  function handleTypeChange(value: FindingTypeFilter) {
+    setTypeFilter(value);
+    clearSelectionIfHidden(severityFilter, value);
+  }
+
+  function handleResetFilters() {
+    setSeverityFilter("ALL");
+    setTypeFilter("ALL");
+    clearSelectionIfHidden("ALL", "ALL");
   }
 
   function seekSegment(segment: TranscriptSegment) {
@@ -91,7 +120,7 @@ export function AnalysisPage() {
       <header className="analysis-header">
         <div>
           <Link to="/" className="text-link">
-            새 영상 분석
+            영상 분석
           </Link>
           <h1>분석 결과</h1>
         </div>
@@ -111,7 +140,7 @@ export function AnalysisPage() {
         </div>
       </header>
 
-      {result.status === "FAILED" ? <ErrorState message={result.error ?? "분석이 실패했습니다."} /> : null}
+      {result.status === "FAILED" ? <ErrorState message={result.error ?? "분석에 실패했습니다."} /> : null}
       {!isDone ? <AnalysisProgress currentStep={result.currentStep} /> : null}
       {result.warnings.length > 0 ? (
         <section className="warnings-panel" aria-label="분석 경고">
@@ -131,7 +160,24 @@ export function AnalysisPage() {
             onTimeUpdate={setCurrentTime}
             onDurationChange={setPlayerDuration}
           />
-          <section className="panel timeline-panel">
+          <section className="panel findings-controls-panel" data-testid="findings-controls-section">
+            <div className="section-heading">
+              <div>
+                <h2>결과 필터</h2>
+                <p>필터는 아래 타임라인과 편집 필요 구간 표에 함께 적용됩니다.</p>
+              </div>
+            </div>
+            <FindingsFilters
+              findings={result.findings}
+              severityFilter={severityFilter}
+              typeFilter={typeFilter}
+              filteredCount={filteredFindings.length}
+              onSeverityChange={handleSeverityChange}
+              onTypeChange={handleTypeChange}
+              onReset={handleResetFilters}
+            />
+          </section>
+          <section className="panel timeline-panel" data-testid="timeline-section">
             <div className="section-heading">
               <h2>타임라인</h2>
               <p>구간을 선택하면 영상이 해당 시점으로 이동합니다.</p>
@@ -144,23 +190,11 @@ export function AnalysisPage() {
               onSeek={seekFinding}
             />
           </section>
-          <section className="panel">
+          <section className="panel" data-testid="findings-table-section">
             <div className="section-heading">
               <h2>편집 필요 구간</h2>
               <p>행을 선택하면 영상이 해당 시점으로 이동합니다.</p>
             </div>
-            <FindingsFilters
-              findings={result.findings}
-              severityFilter={severityFilter}
-              typeFilter={typeFilter}
-              filteredCount={filteredFindings.length}
-              onSeverityChange={setSeverityFilter}
-              onTypeChange={setTypeFilter}
-              onReset={() => {
-                setSeverityFilter("ALL");
-                setTypeFilter("ALL");
-              }}
-            />
             <FindingsTable findings={filteredFindings} selectedId={selectedId} onSeek={seekFinding} />
           </section>
           <section className="split-grid">
