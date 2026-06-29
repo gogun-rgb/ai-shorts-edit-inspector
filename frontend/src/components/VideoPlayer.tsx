@@ -8,10 +8,12 @@ export interface VideoPlayerHandle {
 
 interface VideoPlayerProps {
   analysisId: string;
+  onTimeUpdate?: (currentTime: number) => void;
+  onDurationChange?: (duration: number) => void;
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(function VideoPlayer(
-  { analysisId },
+  { analysisId, onTimeUpdate, onDurationChange },
   ref
 ) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -21,7 +23,10 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(funct
   useImperativeHandle(ref, () => ({
     seekTo(time: number) {
       if (!videoRef.current) return;
-      videoRef.current.currentTime = Math.max(0, time);
+      const nextTime = Math.max(0, time);
+      videoRef.current.currentTime = nextTime;
+      setCurrentTime(nextTime);
+      onTimeUpdate?.(nextTime);
       videoRef.current.play().catch(() => undefined);
       wrapperRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -34,7 +39,13 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(funct
         controls
         preload="metadata"
         src={videoUrl(analysisId)}
-        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+        onLoadedMetadata={(event) => onDurationChange?.(event.currentTarget.duration)}
+        onDurationChange={(event) => onDurationChange?.(event.currentTarget.duration)}
+        onTimeUpdate={(event) => {
+          const nextTime = event.currentTarget.currentTime;
+          setCurrentTime(nextTime);
+          onTimeUpdate?.(nextTime);
+        }}
       />
       <div className="player-meta">
         <span>현재 재생 시간</span>
@@ -43,4 +54,3 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(funct
     </section>
   );
 });
-

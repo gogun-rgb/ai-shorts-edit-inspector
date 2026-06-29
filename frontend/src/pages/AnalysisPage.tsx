@@ -7,6 +7,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { FindingsFilters } from "../components/FindingsFilters";
 import { FindingsTable } from "../components/FindingsTable";
+import { FindingsTimeline } from "../components/FindingsTimeline";
 import { SummaryCards } from "../components/SummaryCards";
 import { TranscriptPanel } from "../components/TranscriptPanel";
 import { VideoPlayer } from "../components/VideoPlayer";
@@ -27,6 +28,8 @@ export function AnalysisPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<FindingTypeFilter>("ALL");
+  const [currentTime, setCurrentTime] = useState(0);
+  const [playerDuration, setPlayerDuration] = useState(0);
 
   useEffect(() => {
     const id = analysisId;
@@ -66,6 +69,7 @@ export function AnalysisPage() {
   if (!result) return <EmptyState />;
 
   const isDone = doneStatuses.has(result.status);
+  const timelineDuration = playerDuration || result.metadata?.duration || 0;
 
   function seekFinding(finding: Finding) {
     setSelectedId(finding.id);
@@ -121,7 +125,25 @@ export function AnalysisPage() {
       {result.metadata && result.summary ? (
         <>
           <SummaryCards result={result} />
-          <VideoPlayer analysisId={analysisId} ref={playerRef} />
+          <VideoPlayer
+            analysisId={analysisId}
+            ref={playerRef}
+            onTimeUpdate={setCurrentTime}
+            onDurationChange={setPlayerDuration}
+          />
+          <section className="panel timeline-panel">
+            <div className="section-heading">
+              <h2>타임라인</h2>
+              <p>구간을 선택하면 영상이 해당 시점으로 이동합니다.</p>
+            </div>
+            <FindingsTimeline
+              findings={filteredFindings}
+              videoDuration={timelineDuration}
+              currentTime={currentTime}
+              selectedId={selectedId}
+              onSeek={seekFinding}
+            />
+          </section>
           <section className="panel">
             <div className="section-heading">
               <h2>편집 필요 구간</h2>
